@@ -16,7 +16,7 @@ export default function Register() {
                 password: password,
             };
             const response = await axios.post(
-                'http://localhost:5000/api/auth/register',
+                'https://chat-app-dm9j.onrender.com/api/auth/register',
                 userData
             );
 
