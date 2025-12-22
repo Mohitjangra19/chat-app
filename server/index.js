@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const http = require('http');
 const { Server } = require('socket.io');
+const Message = require('./models/Message');
 
 env.config();
 connectDB();
@@ -29,8 +30,14 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    socket.on('send_message', (data) => {
-        socket.broadcast.emit('receive_message', data);
+    socket.on("send_message", async (data) => {
+        const newMessage = new Message({
+            username: data.author,
+            message: data.message
+        });
+        await newMessage.save();
+
+        io.emit('receive_message', data);
     });
  
     socket.on('disconnect', () => {
@@ -39,6 +46,17 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT // 5000
+
+app.get('/api/messages', async (req, res) => {
+    try {
+        const messages = await Message.find().sort({ timestamp: 1 });
+        res.json(messages);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

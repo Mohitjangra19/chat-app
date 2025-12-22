@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
+import axios from "axios";
 
 const socket = io.connect("https://chat-app-dm9j.onrender.com");
 
@@ -25,14 +26,28 @@ export default function Chat() {
     };
 
     useEffect(() => {
-       const receiveMessage = (data) => {
-              setMessageList((list) => [...list, data]);
-         };
+        const fetchMessages = async () => {
+            try {
+                const response = await axios.get("https://chat-app-dm9j.onrender.com/api/messages");
+                const messages = response.data.map(msg => ({
+                    author: msg.username,
+                    message: msg.message,
+                    time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }));
+                setMessageList(history);
+            } catch (err) {
+                console.error("error fetching messages:", err);
+            }
+        };
 
-         socket.on("receive_message", receiveMessage);
-            return () => {
-                socket.off("receive_message", receiveMessage);
-            };
+        fetchMessages();
+        const receiveMessageListener = (data) => {
+            setMessageList((list) => [...list, data]);
+        };
+        socket.on("receive_message", receiveMessage);
+        return () => {
+            socket.off("receive_message", receiveMessageListener);
+        };
     }, [socket]);
 
     return (
