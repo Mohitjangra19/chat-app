@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 
-const socket = io.connect("https://chat-app-dm9j.onrender.com");
+const socket = io.connect(import.meta.env.VITE_SERVER_URL);
 
 export default function Chat() {
     
@@ -28,7 +28,7 @@ export default function Chat() {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const response = await axios.get("https://chat-app-dm9j.onrender.com/api/messages");
+                const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/messages`);
                 const messages = response.data.map(msg => ({
                     author: msg.username,
                     message: msg.message,

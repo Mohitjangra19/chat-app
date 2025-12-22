@@ -14,7 +14,7 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        'https://chat-app-dm9j.onrender.com/api/auth/login',
+        `${import.meta.env.VITE_SERVER_URL}/api/messages`,
         { username, password }
       );
 
